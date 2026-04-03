@@ -4,6 +4,8 @@ import "./globals.css";
 import { Navbar } from "@/components/web/navbar";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/ui/theme-provider";
+import { ConvexClientProvider } from "@/components/web/ConvexClientProvider";
+import { Toaster } from "@/components/ui/sonner";
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
@@ -54,8 +56,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <main className="max-w-7xl mx-auto w-full px-4 md:px-6 lg:px-8">
-            {children}
+            <ConvexClientProvider>{children}</ConvexClientProvider>
           </main>
+          <Toaster closeButton />
         </ThemeProvider>
       </body>
     </html>
