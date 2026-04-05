@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "adept-dog-472.convex.cloud",
+        hostname: "energetic-sardine-748.convex.cloud",
         port: "",
       },
     ],
