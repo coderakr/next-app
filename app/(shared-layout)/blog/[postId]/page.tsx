@@ -5,10 +5,12 @@ import { api } from "@/convex/_generated/api";
 import { fetchQuery } from "convex/nextjs";
 import { ArrowLeft } from "lucide-react";
 import { Metadata } from "next/dist/types";
+import { connection } from "next/server";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { fetchAuthQuery } from "@/lib/auth-server";
+import { Suspense } from "react";
 
 interface PostIdRouteProps {
   params: Promise<{
@@ -34,7 +36,16 @@ export async function generateMetadata({
   };
 }
 
-export default async function BlogPostPage({ params }: PostIdRouteProps) {
+export default function BlogPostPage({ params }: PostIdRouteProps) {
+  return (
+    <Suspense fallback={<BlogPostFallback />}>
+      <BlogPostPageContent params={params} />
+    </Suspense>
+  );
+}
+
+async function BlogPostPageContent({ params }: PostIdRouteProps) {
+  await connection();
   const { postId } = await params;
   const currentUser = await fetchAuthQuery(api.auth.getCurrentUser);
 
@@ -93,6 +104,33 @@ export default async function BlogPostPage({ params }: PostIdRouteProps) {
       <Separator className="my-8" />
 
       <CommentSection />
+    </div>
+  );
+}
+
+function BlogPostFallback() {
+  return (
+    <div className="max-w-3xl mx-auto px-4 py-8 animate-in fade-in duration-500 relative">
+      <Link
+        className={buttonVariants({ variant: "outline", className: "mb-4" })}
+        href={"/blog"}
+      >
+        <ArrowLeft className="size-4" />
+        Back to Blog
+      </Link>
+
+      <div className="space-y-4 flex flex-col">
+        <div className="h-10 w-3/4 rounded-md bg-muted" />
+        <div className="h-4 w-32 rounded-md bg-muted" />
+      </div>
+
+      <Separator className="my-8" />
+      <div className="space-y-3">
+        <div className="h-4 w-full rounded-md bg-muted" />
+        <div className="h-4 w-full rounded-md bg-muted" />
+        <div className="h-4 w-5/6 rounded-md bg-muted" />
+      </div>
+      <Separator className="my-8" />
     </div>
   );
 }
