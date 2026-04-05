@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Button, buttonVariants } from "../ui/button";
 import { ThemeToggle } from "./theme-toggle";
 import { useConvexAuth } from "convex/react";
-import { authClient } from "@/lib/auth-client";
+import { authClient, getAuthErrorMessage } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { SearchInput } from "./SearchInput";
@@ -44,19 +44,22 @@ export function Navbar() {
         </div>
         {isLoading ? null : isAuthenticated ? (
           <Button
-            onClick={() =>
-              authClient.signOut({
-                fetchOptions: {
-                  onSuccess: () => {
-                    toast.success("Logged out successfully");
-                    router.push("/");
-                  },
-                  onError: (error) => {
-                    toast.error(error.error.message);
-                  },
-                },
-              })
-            }
+            onClick={async () => {
+              try {
+                const result = await authClient.signOut();
+
+                if (result.error) {
+                  toast.error(getAuthErrorMessage(result.error));
+                  return;
+                }
+
+                toast.success("Logged out successfully");
+                router.replace("/");
+                router.refresh();
+              } catch (error) {
+                toast.error(getAuthErrorMessage(error));
+              }
+            }}
           >
             Logout
           </Button>

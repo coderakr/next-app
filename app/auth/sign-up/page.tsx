@@ -16,11 +16,11 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { authClient } from "@/lib/auth-client";
+import { authClient, getAuthErrorMessage } from "@/lib/auth-client";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { startTransition, useTransition } from "react";
+import { useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod/v4";
@@ -40,20 +40,24 @@ export default function SignUp() {
 
   async function onSubmit(data: z.input<typeof signUpSchema>) {
     startTransition(async () => {
-      await authClient.signUp.email({
-        email: data.email,
-        password: data.password,
-        name: data.name,
-        fetchOptions: {
-          onSuccess: () => {
-            toast.success("Account created successfully");
-            router.push("/");
-          },
-          onError: (error) => {
-            toast.error(error.error.message);
-          },
-        },
-      });
+      try {
+        const result = await authClient.signUp.email({
+          email: data.email,
+          password: data.password,
+          name: data.name,
+        });
+
+        if (result.error) {
+          toast.error(getAuthErrorMessage(result.error));
+          return;
+        }
+
+        toast.success("Account created successfully");
+        router.replace("/");
+        router.refresh();
+      } catch (error) {
+        toast.error(getAuthErrorMessage(error));
+      }
     });
   }
 
@@ -121,7 +125,7 @@ export default function SignUp() {
               )}
             />
 
-            <Button disabled={isPending}>
+            <Button type="submit" disabled={isPending}>
               {isPending ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />

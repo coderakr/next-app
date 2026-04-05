@@ -16,7 +16,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { authClient } from "@/lib/auth-client";
+import { authClient, getAuthErrorMessage } from "@/lib/auth-client";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -39,19 +39,23 @@ export default function Login() {
 
   function onSubmit(data: z.input<typeof loginSchema>) {
     startTransition(async () => {
-      await authClient.signIn.email({
-        email: data.email,
-        password: data.password,
-        fetchOptions: {
-          onSuccess: () => {
-            toast.success("Logged in successfully");
-            router.push("/");
-          },
-          onError: (error) => {
-            toast.error(error.error.message);
-          },
-        },
-      });
+      try {
+        const result = await authClient.signIn.email({
+          email: data.email,
+          password: data.password,
+        });
+
+        if (result.error) {
+          toast.error(getAuthErrorMessage(result.error));
+          return;
+        }
+
+        toast.success("Logged in successfully");
+        router.replace("/");
+        router.refresh();
+      } catch (error) {
+        toast.error(getAuthErrorMessage(error));
+      }
     });
   }
 
@@ -102,7 +106,7 @@ export default function Login() {
               )}
             />
 
-            <Button disabled={isPending}>
+            <Button type="submit" disabled={isPending}>
               {isPending ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />
