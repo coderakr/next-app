@@ -19,7 +19,6 @@ import { Input } from "@/components/ui/input";
 import { authClient, getAuthErrorMessage } from "@/lib/auth-client";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -27,7 +26,6 @@ import { z } from "zod/v4";
 
 export default function SignUp() {
   const [isPending, startTransition] = useTransition();
-  const router = useRouter();
 
   const form = useForm<z.input<typeof signUpSchema>>({
     resolver: standardSchemaResolver(signUpSchema),
@@ -52,9 +50,9 @@ export default function SignUp() {
           return;
         }
 
+        await authClient.getSession();
         toast.success("Account created successfully");
-        router.replace("/");
-        router.refresh();
+        window.location.replace("/");
       } catch (error) {
         toast.error(getAuthErrorMessage(error));
       }

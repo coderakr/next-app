@@ -6,12 +6,10 @@ import { ThemeToggle } from "./theme-toggle";
 import { useConvexAuth } from "convex/react";
 import { authClient, getAuthErrorMessage } from "@/lib/auth-client";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 import { SearchInput } from "./SearchInput";
 
 export function Navbar() {
   const { isAuthenticated, isLoading } = useConvexAuth();
-  const router = useRouter();
 
   return (
     <nav className="w-full  py-5 flex items-center justify-between">
@@ -54,8 +52,7 @@ export function Navbar() {
                 }
 
                 toast.success("Logged out successfully");
-                router.replace("/");
-                router.refresh();
+                window.location.replace("/");
               } catch (error) {
                 toast.error(getAuthErrorMessage(error));
               }

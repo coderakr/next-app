@@ -8,7 +8,7 @@ import { Metadata } from "next/dist/types";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { fetchAuthQuery, isAuthenticated } from "@/lib/auth-server";
+import { fetchAuthQuery } from "@/lib/auth-server";
 
 interface PostIdRouteProps {
   params: Promise<{
@@ -36,11 +36,9 @@ export async function generateMetadata({
 
 export default async function BlogPostPage({ params }: PostIdRouteProps) {
   const { postId } = await params;
-  const userId = (await isAuthenticated())
-    ? (await fetchAuthQuery(api.auth.getCurrentUser))._id
-    : undefined;
+  const currentUser = await fetchAuthQuery(api.auth.getCurrentUser);
 
-  if (!userId) {
+  if (!currentUser) {
     redirect("/auth/login");
   }
 
