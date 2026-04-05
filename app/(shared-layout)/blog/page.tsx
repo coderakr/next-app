@@ -4,7 +4,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/convex/_generated/api";
 import { fetchQuery } from "convex/nextjs";
 import { Metadata } from "next";
-import { cacheLife, cacheTag } from "next/cache";
 import Image from "next/image";
 import Link from "next/link";
 import { connection } from "next/server";
@@ -30,9 +29,9 @@ export default function BlogPage() {
         </p>
       </div>
 
-      {/* <Suspense fallback={<SkeletonLodingUi />}> */}
-      <BlogList />
-      {/* </Suspense> */}
+      <Suspense fallback={<SkeletonLoadingUi />}>
+        <BlogList />
+      </Suspense>
     </div>
   );
 }
@@ -85,7 +84,7 @@ async function BlogList() {
   );
 }
 
-function SkeletonLodingUi() {
+function SkeletonLoadingUi() {
   return (
     <div className="grid gap-6 md:grid-cols-3 lg:grid-cols-3">
       {[...Array(3)].map((_, i) => (
